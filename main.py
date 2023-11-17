@@ -1,6 +1,6 @@
 import socket
 import sqlalchemy as sql
-
+from data import db_session
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(("localhost", 1337))
