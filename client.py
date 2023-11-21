@@ -4,8 +4,9 @@ import time
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 1337  # The port used by the server
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))
+
+def get_time():
+    return time.strftime("%H:%M:%S, %d %b %Y, %a", time.gmtime())
 
 
 def data_to_bytes(lst):
@@ -23,11 +24,18 @@ def data_to_bytes(lst):
 def request():
     time.sleep(2)
     # get data
-    data = [12, "123", "get"]  # id (int), equipment (str), get/give
+    data = [12, "Spotlight", "get"]  # id (int), equipment (str), get/give
     return data
 
 
 while True:
-    s.sendall(data_to_bytes(request()))
-    data = s.recv(2**16).decode()
-    print(data)
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
+        while True:
+            s.sendall(data_to_bytes(request()))
+            data = s.recv(2**16).decode()
+            print(data)
+    except (ConnectionAbortedError, ConnectionResetError, ConnectionRefusedError) as error:
+        print(get_time(), f"| Server offline: {error}")
+        time.sleep(5)

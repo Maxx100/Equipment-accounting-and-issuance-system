@@ -1,15 +1,15 @@
 import socket
-from datetime import datetime
+import data.excel_engine as ee
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(("localhost", 1337))
 
 if __name__ == "__main__":
-    # db_session.global_init("data/log.db")
-
+    excel = ee.Excel()
     s.listen()
     conn, addr = s.accept()
-    print(f"Connected by {addr}")
+    print(f"Client: {addr}")
 
     while True:
         data = conn.recv(16 + 64 + 64).decode()
@@ -19,16 +19,8 @@ if __name__ == "__main__":
         print(data)
         if "ok":
             conn.sendall(b"ok")
+            excel.add(ident=int(data[0]), equipment=data[1], _type=data[2])
 
-            event = Event()
-            event.time, event.date = str(datetime.now()).split(".")[0].split()
-            event.id = int(data[0])
-            event.equipment = data[1]
-            event.type = data[2]
-
-            db_sess = db_session.create_session()
-            db_sess.add(event)
-            db_sess.commit()
         else:
             conn.sendall(b"Access denied")
     # conn.close()
